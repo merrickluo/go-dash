@@ -29,14 +29,24 @@ func untap[T any](m *mMult[T], ch chan T) {
 func (m *mMult[T]) run() {
 	for {
 		select {
-		case it := <-m.source:
-			for ch, _ := range m.taps {
-				ch <- it
-			}
 		case t := <-m.tap:
 			m.taps[t] = true
 		case t := <-m.untap:
 			delete(m.taps, t)
+		case it, ok := <-m.source:
+			if !ok {
+				m.source = nil
+				break
+			}
+			for ch := range m.taps {
+				ch <- it
+			}
+		default:
+		}
+		if m.source == nil {
+			close(m.tap)
+			close(m.untap)
+			break
 		}
 	}
 }

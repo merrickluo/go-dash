@@ -1,11 +1,8 @@
 package main
 
 // mix admix unmix
-// mult tap untap
-// split
 // pipeline
 // sliding-buffer
-// split
 
 import (
 	"sync"
@@ -72,4 +69,23 @@ func merge[T any](chs ...chan T) chan T {
 		close(ret)
 	}()
 	return ret
+}
+
+func split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
+	c1 := make(chan T, 8)
+	c2 := make(chan T, 8)
+	go func(c1 chan T, c2 chan T) {
+		defer close(c1)
+		defer close(c2)
+
+		for it := range ch {
+			if pred(it) {
+				c1 <- it
+			} else {
+				c2 <- it
+			}
+		}
+	}(c1, c2)
+
+	return c1, c2
 }

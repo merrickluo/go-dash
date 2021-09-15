@@ -66,17 +66,42 @@ func main() {
 	}
 
 	// mult
-	fmt.Println("start mult")
-	s := make(chan int)
-	ch1 := make(chan int)
-	ch2 := make(chan int)
+	fmt.Println("mult")
+	g := make(chan int)
+	ch1 := make(chan int, 1)
+	ch2 := make(chan int, 1)
 
-	m := mult(s)
+	m := mult(g)
 	tap(m, ch1)
 	tap(m, ch2)
 
-	s <- 10
+	g <- 10
 
 	fmt.Println(<-ch1)
 	fmt.Println(<-ch2)
+	close(g)
+	close(ch1)
+	close(ch2)
+
+	// split
+	h := make(chan int)
+	c1, c2 := split(h, func(i int) bool {
+		return i > 2
+	})
+
+	h <- 1
+	h <- 2
+	h <- 3
+	h <- 4
+	close(h)
+
+	fmt.Println("spliting i > 2")
+	fmt.Println("c1")
+	for it := range c1 {
+		fmt.Println(it)
+	}
+	fmt.Println("c2")
+	for it := range c2 {
+		fmt.Println(it)
+	}
 }
