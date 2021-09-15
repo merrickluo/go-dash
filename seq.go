@@ -1,39 +1,51 @@
 package main
 
-func Map[T any, M any](t []T, f func(T) M) []M {
-	n := make([]M, len(t), cap(t))
+func Map[T any, M any](slice []T, f func(T) M) []M {
+	ret := make([]M, len(slice), cap(slice))
 
-	for i, e := range t {
-		n[i] = f(e)
+	for i, it := range slice {
+		ret[i] = f(it)
 	}
-	return n
+	return ret
 }
 
-func Filter[T any](t []T, f func(T) bool) []T {
-	n := make([]T, 0)
-	for _, e := range t {
-		if f(e) {
-			n = append(n, e)
+func Filter[T any](slice []T, f func(T) bool) []T {
+	ret := make([]T, 0)
+	for _, it := range slice {
+		if f(it) {
+			ret = append(ret, it)
 		}
 	}
-	return n
+	return ret
 }
 
-func Reduce[T any, A any](t []T, f func(A, T) A, acc A) A {
-	for _, e := range t {
-		acc = f(acc, e)
+func Reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
+	for _, it := range slice {
+		acc = f(acc, it)
 	}
 	return acc
 }
 
-func Take[T any](t []T, count int) []T {
-	if count > len(t) {
-		count = len(t)
+func take[T any](slice []T, count int) []T {
+	if count > len(slice) {
+		return slice
 	}
-	n := make([]T, count)
+	ret := make([]T, count)
 	for i := 0; i < count; i++ {
-		n[i] = t[i]
+		ret[i] = slice[i]
 	}
 
-	return n
+	return ret
+}
+
+func drop[T any](slice []T, count int) []T {
+	if count > len(slice) {
+		return []T{}
+	}
+
+	ret := make([]T, 0)
+	for i := count; i < len(slice); i++ {
+		ret = append(ret, slice[i])
+	}
+	return ret
 }
