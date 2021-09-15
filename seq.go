@@ -1,6 +1,6 @@
 package main
 
-func Map[T any, M any](slice []T, f func(T) M) []M {
+func mmap[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), cap(slice))
 
 	for i, it := range slice {
@@ -9,7 +9,17 @@ func Map[T any, M any](slice []T, f func(T) M) []M {
 	return ret
 }
 
-func Filter[T any](slice []T, f func(T) bool) []T {
+func flatMap[T any, M any](slice []T, f func(T) []M) []M {
+	ret := make([]M, 0)
+	for _, it := range slice {
+		for _, mapped := range f(it) {
+			ret = append(ret, mapped)
+		}
+	}
+	return ret
+}
+
+func filter[T any](slice []T, f func(T) bool) []T {
 	ret := make([]T, 0)
 	for _, it := range slice {
 		if f(it) {
@@ -19,7 +29,7 @@ func Filter[T any](slice []T, f func(T) bool) []T {
 	return ret
 }
 
-func Reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
+func reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
 	for _, it := range slice {
 		acc = f(acc, it)
 	}
