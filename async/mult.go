@@ -41,7 +41,6 @@ func (m *mMult[T]) run() {
 			for ch := range m.taps {
 				ch <- it
 			}
-		default:
 		}
 		if m.source == nil {
 			close(m.tap)

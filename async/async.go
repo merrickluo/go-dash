@@ -89,3 +89,17 @@ func split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
 
 	return c1, c2
 }
+
+func collect[T any](ch <-chan T) []T {
+	ret := make([]T, 0)
+	for it := range ch {
+		ret = append(ret, it)
+	}
+	return ret
+}
+
+func into[T any](ch chan T, slice *[]T) {
+	for it := range ch {
+		*slice = append(*slice, it)
+	}
+}

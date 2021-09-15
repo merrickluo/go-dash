@@ -1,10 +1,40 @@
 package main
 
-import "fmt"
+import (
+	"log"
+	"sort"
 
-func main() {
-	// map
-	fmt.Println("map(i * 2)")
+	"github.com/stretchr/testify/assert"
+)
+
+func testCollect() {
+	ch1 := make(chan int, 10)
+	ch1 <- 1
+	ch1 <- 2
+	ch1 <- 3
+	close(ch1)
+	assertEqual("collect int", collect(ch1), []int{1, 2, 3})
+
+	ch2 := make(chan string, 10)
+	ch2 <- "Hello"
+	ch2 <- "World"
+	close(ch2)
+	assertEqual("collect string", collect(ch2), []string{"Hello", "World"})
+}
+
+func testInto() {
+	ch1 := make(chan int, 10)
+	ch1 <- 1
+	ch1 <- 2
+	ch1 <- 3
+	close(ch1)
+
+	res := []int{}
+	into(ch1, &res)
+	assertEqual("into", res, []int{1, 2, 3})
+}
+
+func testMap() {
 	a := make(chan int, 10)
 	r := mmap(a, func(it int) int {
 		return it * 2
@@ -15,12 +45,10 @@ func main() {
 	a <- 3
 	close(a)
 
-	for it := range r {
-		fmt.Println(it)
-	}
+	assertEqual("map *2", collect(r), []int{2, 4, 6})
+}
 
-	// take
-	fmt.Println("take(2)")
+func testTake2() {
 	b := make(chan int, 5)
 
 	b <- 1
@@ -30,12 +58,10 @@ func main() {
 
 	bb := take(b, 2)
 
-	for it := range bb {
-		fmt.Println(it)
-	}
+	assertEqual("take 2", collect(bb), []int{1, 2})
+}
 
-	// drop
-	fmt.Println("drop(2)")
+func testDrop2() {
 	c := make(chan int, 5)
 	c <- 1
 	c <- 2
@@ -43,12 +69,10 @@ func main() {
 	close(c)
 
 	cc := drop(c, 2)
-	for it := range cc {
-		fmt.Println(it)
-	}
+	assertEqual("drop 2", collect(cc), []int{3})
+}
 
-	// merge
-	fmt.Println("merge(d, e)")
+func testMerge() {
 	d := make(chan int, 5)
 	e := make(chan int, 5)
 
@@ -61,15 +85,15 @@ func main() {
 	close(e)
 
 	ff := merge(d, e)
-	for it := range ff {
-		fmt.Println(it)
-	}
+	result := sort.IntSlice(collect(ff))
+	result.Sort()
+	assertEqual("merge", result, []int{1, 2, 3, 4, 5})
+}
 
-	// mult
-	fmt.Println("mult")
+func testMult() {
 	g := make(chan int)
-	ch1 := make(chan int, 1)
-	ch2 := make(chan int, 1)
+	ch1 := make(chan int, 10)
+	ch2 := make(chan int, 10)
 
 	m := mult(g)
 	tap(m, ch1)
@@ -77,13 +101,18 @@ func main() {
 
 	g <- 10
 
-	fmt.Println(<-ch1)
-	fmt.Println(<-ch2)
+	untap(m, ch1)
+
+	g <- 20
 	close(g)
 	close(ch1)
 	close(ch2)
 
-	// split
+	assertEqual("mult and tap tap1", collect(ch1), []int{10})
+	assertEqual("mult and tap tap2", collect(ch2), []int{10, 20})
+}
+
+func testSplit() {
 	h := make(chan int)
 	c1, c2 := split(h, func(i int) bool {
 		return i > 2
@@ -95,13 +124,25 @@ func main() {
 	h <- 4
 	close(h)
 
-	fmt.Println("spliting i > 2")
-	fmt.Println("c1")
-	for it := range c1 {
-		fmt.Println(it)
-	}
-	fmt.Println("c2")
-	for it := range c2 {
-		fmt.Println(it)
+	assertEqual("split p1", collect(c1), []int{3, 4})
+	assertEqual("split p2", collect(c2), []int{1, 2})
+}
+
+func main() {
+	testCollect()
+	testInto()
+	testMap()
+	testTake2()
+	testDrop2()
+	testMerge()
+	testMult()
+	testSplit()
+}
+
+func assertEqual[T any](name string, value T, expected T) {
+	if !assert.ObjectsAreEqualValues(value, expected) {
+		log.Printf("Fail: %s, expect %v to be %v.\n", name, value, expected)
+	} else {
+		log.Printf("Pass: %s.", name)
 	}
 }
