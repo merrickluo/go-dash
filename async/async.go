@@ -21,6 +21,36 @@ func Map[T any, M any](ch <-chan T, f func(T) M) <-chan M {
 	return ret
 }
 
+func Filter[T any](ch <-chan T, pred func(T) bool) <-chan T {
+	ret := make(chan T)
+
+	go func() {
+		defer close(ret)
+		for it := range ch {
+			if pred(it) {
+				ret <- it
+			}
+		}
+	}()
+
+	return ret
+}
+
+func Reduce[T any, M any](ch <-chan T, f func(M, T) M, init M) <-chan M {
+	ret := make(chan M)
+
+	go func() {
+		defer close(ret)
+		var acc = init
+		for it := range ch {
+			acc = f(acc, it)
+		}
+		ret <- acc
+	}()
+
+	return ret
+}
+
 func Take[T any](ch <-chan T, count int) <-chan T {
 	ret := make(chan T)
 
