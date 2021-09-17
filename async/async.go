@@ -1,5 +1,3 @@
-//go:build generic
-
 package async
 
 // mix admix unmix
@@ -10,7 +8,7 @@ import (
 	"sync"
 )
 
-func mmap[T any, M any](ch <-chan T, f func(T) M) <-chan M {
+func Map[T any, M any](ch <-chan T, f func(T) M) <-chan M {
 	ret := make(chan M)
 
 	go func() {
@@ -23,7 +21,7 @@ func mmap[T any, M any](ch <-chan T, f func(T) M) <-chan M {
 	return ret
 }
 
-func take[T any](ch <-chan T, count int) <-chan T {
+func Take[T any](ch <-chan T, count int) <-chan T {
 	ret := make(chan T)
 
 	go func() {
@@ -36,7 +34,7 @@ func take[T any](ch <-chan T, count int) <-chan T {
 	return ret
 }
 
-func drop[T any](ch <-chan T, count int) <-chan T {
+func Drop[T any](ch <-chan T, count int) <-chan T {
 	ret := make(chan T)
 
 	go func() {
@@ -53,7 +51,7 @@ func drop[T any](ch <-chan T, count int) <-chan T {
 	return ret
 }
 
-func merge[T any](chs ...chan T) chan T {
+func Merge[T any](chs ...chan T) chan T {
 	ret := make(chan T)
 	wg := sync.WaitGroup{}
 	wg.Add(len(chs))
@@ -73,7 +71,7 @@ func merge[T any](chs ...chan T) chan T {
 	return ret
 }
 
-func split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
+func Split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
 	c1 := make(chan T, 8)
 	c2 := make(chan T, 8)
 	go func(c1 chan T, c2 chan T) {
@@ -92,7 +90,7 @@ func split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
 	return c1, c2
 }
 
-func collect[T any](ch <-chan T) []T {
+func Collect[T any](ch <-chan T) []T {
 	ret := make([]T, 0)
 	for it := range ch {
 		ret = append(ret, it)
@@ -100,7 +98,7 @@ func collect[T any](ch <-chan T) []T {
 	return ret
 }
 
-func into[T any](ch chan T, slice *[]T) {
+func Into[T any](ch chan T, slice *[]T) {
 	for it := range ch {
 		*slice = append(*slice, it)
 	}

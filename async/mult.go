@@ -1,5 +1,3 @@
-//go:build generic
-
 package async
 
 type mMult[T any] struct {
@@ -9,7 +7,7 @@ type mMult[T any] struct {
 	untap  chan chan T
 }
 
-func mult[T any](source chan T) *mMult[T] {
+func Mult[T any](source chan T) *mMult[T] {
 	m := &mMult[T]{
 		source: source,
 		taps:   make(map[chan T]bool),
@@ -20,11 +18,11 @@ func mult[T any](source chan T) *mMult[T] {
 	return m
 }
 
-func tap[T any](m *mMult[T], ch chan T) {
+func Tap[T any](m *mMult[T], ch chan T) {
 	m.tap <- ch
 }
 
-func untap[T any](m *mMult[T], ch chan T) {
+func Untap[T any](m *mMult[T], ch chan T) {
 	m.untap <- ch
 }
 

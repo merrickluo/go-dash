@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testMultiply(t *testing.T) {
+func TestMultiply(t *testing.T) {
 	g := make(chan int)
 	ch1 := make(chan int, 10)
 	ch2 := make(chan int, 10)
