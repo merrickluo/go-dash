@@ -5,6 +5,7 @@ package async
 // sliding-buffer
 
 import (
+	"time"
 	"sync"
 )
 
@@ -102,4 +103,39 @@ func Into[T any](ch chan T, slice *[]T) {
 	for it := range ch {
 		*slice = append(*slice, it)
 	}
+}
+
+func SlidingBuffer[T any](ch chan T, n uint) (chan T) {
+	sb := make(chan T, n)
+	full := int(n)
+	go func(){
+		defer close(sb)
+		for i := range ch {
+			if len(sb) == full {
+				select {
+				case <-time.After(10*time.Millisecond):
+				case <-sb:
+				}
+			}
+			sb <- i
+		}
+	}()
+	return sb
+}
+
+func DroppingBuffer[T any](ch chan T, n uint) (chan T) {
+	db := make(chan T, n)
+	full := int(n)
+	go func(){
+		defer close(db)
+		for i := range ch {
+			if len(db) != full {
+				select {
+				case <-time.After(10*time.Millisecond):
+				case db <- i:
+				}
+			}
+		}
+	}()
+	return db
 }

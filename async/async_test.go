@@ -97,3 +97,27 @@ func TestMapInt(t *testing.T) {
 
 	assert.Equal(t, []int{2, 4, 6}, async.Collect(mappedCh))
 }
+
+func TestSlidingBuffer(t *testing.T) {
+	ch := make(chan int)
+	sb := async.SlidingBuffer(ch, 2)
+
+	ch <- 1
+	ch <- 2
+	ch <- 3
+	close(ch)
+
+	assert.Equal(t, []int{2, 3}, async.Collect(sb))
+}
+
+func TestDroppingBuffer(t *testing.T) {
+	ch := make(chan int)
+	db := async.DroppingBuffer(ch, 2)
+
+	ch <- 1
+	ch <- 2
+	ch <- 3
+	close(ch)
+
+	assert.Equal(t, []int{1, 2}, async.Collect(db))
+}
