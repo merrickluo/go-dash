@@ -1,4 +1,4 @@
-module github.com/merrickluo/godash
+module github.com/merrickluo/go-dash
 
 go 1.17
 
