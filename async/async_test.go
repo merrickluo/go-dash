@@ -86,7 +86,7 @@ func TestSplitInt(t *testing.T) {
 
 func TestMapInt(t *testing.T) {
 	ch := make(chan int, 10)
-	mappedCh := async.MMap(ch, func(it int) int {
+	mappedCh := async.Map(ch, func(it int) int {
 		return it * 2
 	})
 

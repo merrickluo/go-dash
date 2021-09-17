@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-func MMap[T any, M any](ch <-chan T, f func(T) M) <-chan M {
+func Map[T any, M any](ch <-chan T, f func(T) M) <-chan M {
 	ret := make(chan M)
 
 	go func() {
@@ -103,4 +103,3 @@ func Into[T any](ch chan T, slice *[]T) {
 		*slice = append(*slice, it)
 	}
 }
-
