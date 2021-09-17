@@ -1,8 +1,9 @@
-package async
+package async_test
 
 import (
 	"testing"
 
+	"github.com/merrickluo/go-dash/async"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -13,7 +14,7 @@ func TestCollectInt(t *testing.T) {
 	ch <- 3
 	close(ch)
 
-	assert.Equal(t, []int{1, 2, 3}, Collect(ch))
+	assert.Equal(t, []int{1, 2, 3}, async.Collect(ch))
 }
 
 func TestIntoInt(t *testing.T) {
@@ -24,7 +25,7 @@ func TestIntoInt(t *testing.T) {
 	close(ch1)
 
 	res := []int{}
-	Into(ch1, &res)
+	async.Into(ch1, &res)
 	assert.Equal(t, []int{1, 2, 3}, res)
 }
 
@@ -36,8 +37,8 @@ func TestTakeInt2(t *testing.T) {
 	ch <- 3
 	close(ch)
 
-	taken := Take(ch, 2)
-	assert.Equal(t, []int{1, 2}, Collect(taken))
+	taken := async.Take(ch, 2)
+	assert.Equal(t, []int{1, 2}, async.Collect(taken))
 }
 
 func TestDrop2(t *testing.T) {
@@ -47,8 +48,8 @@ func TestDrop2(t *testing.T) {
 	ch <- 3
 	close(ch)
 
-	dropped := Drop(ch, 2)
-	assert.Equal(t, []int{3}, Collect(dropped))
+	dropped := async.Drop(ch, 2)
+	assert.Equal(t, []int{3}, async.Collect(dropped))
 }
 
 func TestMergeInt(t *testing.T) {
@@ -63,13 +64,13 @@ func TestMergeInt(t *testing.T) {
 	close(ch1)
 	close(ch2)
 
-	merged := Merge(ch1, ch2)
-	assert.ElementsMatch(t, []int{1, 2, 3, 4, 5}, Collect(merged))
+	merged := async.Merge(ch1, ch2)
+	assert.ElementsMatch(t, []int{1, 2, 3, 4, 5}, async.Collect(merged))
 }
 
 func TestSplitInt(t *testing.T) {
 	ch := make(chan int)
-	sp1, sp2 := Split(ch, func(i int) bool {
+	sp1, sp2 := async.Split(ch, func(i int) bool {
 		return i > 2
 	})
 
@@ -79,13 +80,13 @@ func TestSplitInt(t *testing.T) {
 	ch <- 4
 	close(ch)
 
-	assert.ElementsMatch(t, []int{3, 4}, Collect(sp1))
-	assert.ElementsMatch(t, []int{1, 2}, Collect(sp2))
+	assert.ElementsMatch(t, []int{3, 4}, async.Collect(sp1))
+	assert.ElementsMatch(t, []int{1, 2}, async.Collect(sp2))
 }
 
 func TestMapInt(t *testing.T) {
 	ch := make(chan int, 10)
-	mappedCh := MMap(ch, func(it int) int {
+	mappedCh := async.MMap(ch, func(it int) int {
 		return it * 2
 	})
 
@@ -94,5 +95,5 @@ func TestMapInt(t *testing.T) {
 	ch <- 3
 	close(ch)
 
-	assert.Equal(t, []int{2, 4, 6}, Collect(mappedCh))
+	assert.Equal(t, []int{2, 4, 6}, async.Collect(mappedCh))
 }

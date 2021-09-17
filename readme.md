@@ -13,5 +13,6 @@ gotip get golang.org/x/tools/gopls@master golang.org/x/tools@master
 Then run test:
 
 ```bash
-gotip test -v ./...
+# count=1 disables test cache
+gotip test -v -count=1 ./...
 ```
