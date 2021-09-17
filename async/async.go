@@ -4,8 +4,10 @@ package async
 // pipeline
 
 import (
-	"time"
 	"sync"
+	"time"
+
+	"github.com/merrickluo/go-dash/dash"
 )
 
 func Map[T any, M any](ch <-chan T, f func(T) M) <-chan M {
@@ -134,15 +136,15 @@ func Into[T any](ch chan T, slice *[]T) {
 	}
 }
 
-func SlidingBuffer[T any](ch chan T, n uint) (chan T) {
+func SlidingBuffer[T any](ch chan T, n uint) chan T {
 	sb := make(chan T, n)
 	full := int(n)
-	go func(){
+	go func() {
 		defer close(sb)
 		for i := range ch {
 			if len(sb) == full {
 				select {
-				case <-time.After(10*time.Millisecond): // best effort
+				case <-time.After(10 * time.Millisecond): // best effort
 				case <-sb:
 				}
 			}
@@ -152,19 +154,36 @@ func SlidingBuffer[T any](ch chan T, n uint) (chan T) {
 	return sb
 }
 
-func DroppingBuffer[T any](ch chan T, n uint) (chan T) {
+func DroppingBuffer[T any](ch chan T, n uint) chan T {
 	db := make(chan T, n)
 	full := int(n)
-	go func(){
+	go func() {
 		defer close(db)
 		for i := range ch {
 			if len(db) != full {
 				select {
-				case <-time.After(10*time.Millisecond): // best effort
+				case <-time.After(10 * time.Millisecond): // best effort
 				case db <- i:
 				}
 			}
 		}
 	}()
 	return db
+}
+
+func Zip[T any, M any](ch1 chan T, ch2 chan M) chan dash.Pair[T, M] {
+	ret := make(chan dash.Pair[T, M])
+
+	go func() {
+		defer close(ret)
+		for v1 := range ch1 {
+			v2, ok := <-ch2
+			if !ok {
+				return
+			}
+			ret <- dash.NewPair(v1, v2)
+		}
+	}()
+
+	return ret
 }

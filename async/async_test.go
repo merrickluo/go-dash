@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/merrickluo/go-dash/async"
+	"github.com/merrickluo/go-dash/dash"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -148,4 +149,46 @@ func TestDroppingBuffer(t *testing.T) {
 	close(ch)
 
 	assert.Equal(t, []int{1, 2}, async.Collect(db))
+}
+
+func TestZipIntNoInterrupt(t *testing.T) {
+	ch1 := make(chan int, 2)
+	ch2 := make(chan int, 2)
+
+	ch1 <- 1
+	ch2 <- 2
+	ch2 <- 4
+	ch1 <- 3
+	close(ch1)
+	close(ch2)
+
+	zipped := async.Zip(ch1, ch2)
+	assert.Equal(t,
+		[]dash.Pair[int, int]{dash.NewPair(1, 2), dash.NewPair(3, 4)},
+		async.Collect(zipped),
+	)
+}
+
+func TestZipNeverReach(t *testing.T) {
+	ch1 := make(chan int, 2)
+	ch2 := make(chan int, 2)
+
+	ch2 <- 2
+	close(ch1)
+	close(ch2)
+
+	zipped := async.Zip(ch1, ch2)
+	assert.Empty(t, async.Collect(zipped))
+}
+
+func TestZipEarlyClose(t *testing.T) {
+	ch1 := make(chan int, 2)
+	ch2 := make(chan int, 2)
+
+	ch1 <- 2
+	close(ch1)
+	close(ch2)
+
+	zipped := async.Zip(ch1, ch2)
+	assert.Empty(t, async.Collect(zipped))
 }
