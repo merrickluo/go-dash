@@ -1,8 +1,6 @@
-//go:build generic
-
 package dash
 
-func mmap[T any, M any](slice []T, f func(T) M) []M {
+func Map[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), cap(slice))
 
 	for i, it := range slice {
@@ -11,7 +9,7 @@ func mmap[T any, M any](slice []T, f func(T) M) []M {
 	return ret
 }
 
-func flatMap[T any, M any](slice []T, f func(T) []M) []M {
+func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 	ret := make([]M, 0)
 	for _, it := range slice {
 		for _, mapped := range f(it) {
@@ -21,7 +19,7 @@ func flatMap[T any, M any](slice []T, f func(T) []M) []M {
 	return ret
 }
 
-func filter[T any](slice []T, f func(T) bool) []T {
+func Filter[T any](slice []T, f func(T) bool) []T {
 	ret := make([]T, 0)
 	for _, it := range slice {
 		if f(it) {
@@ -31,14 +29,14 @@ func filter[T any](slice []T, f func(T) bool) []T {
 	return ret
 }
 
-func reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
+func Reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
 	for _, it := range slice {
 		acc = f(acc, it)
 	}
 	return acc
 }
 
-func take[T any](slice []T, count int) []T {
+func Take[T any](slice []T, count int) []T {
 	if count > len(slice) {
 		return slice
 	}
@@ -50,7 +48,7 @@ func take[T any](slice []T, count int) []T {
 	return ret
 }
 
-func drop[T any](slice []T, count int) []T {
+func Drop[T any](slice []T, count int) []T {
 	if count > len(slice) {
 		return []T{}
 	}
