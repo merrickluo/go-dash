@@ -97,7 +97,6 @@ func TestMapInt(t *testing.T) {
 
 	assert.Equal(t, []int{2, 4, 6}, async.Collect(mappedCh))
 }
-
 func TestFilterInt(t *testing.T) {
 	ch := make(chan int, 10)
 	filtered := async.Filter(ch, func(i int) bool {
@@ -110,6 +109,7 @@ func TestFilterInt(t *testing.T) {
 	close(ch)
 
 	assert.Equal(t, []int{2}, async.Collect(filtered))
+
 }
 
 func TestReduceInt(t *testing.T) {
@@ -124,4 +124,28 @@ func TestReduceInt(t *testing.T) {
 	close(ch)
 
 	assert.Equal(t, []int{6}, async.Collect(reduced))
+}
+
+func TestSlidingBuffer(t *testing.T) {
+	ch := make(chan int)
+	sb := async.SlidingBuffer(ch, 2)
+
+	ch <- 1
+	ch <- 2
+	ch <- 3
+	close(ch)
+
+	assert.Equal(t, []int{2, 3}, async.Collect(sb))
+}
+
+func TestDroppingBuffer(t *testing.T) {
+	ch := make(chan int)
+	db := async.DroppingBuffer(ch, 2)
+
+	ch <- 1
+	ch <- 2
+	ch <- 3
+	close(ch)
+
+	assert.Equal(t, []int{1, 2}, async.Collect(db))
 }
