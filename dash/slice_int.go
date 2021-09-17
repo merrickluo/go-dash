@@ -1,7 +1,9 @@
-package main
+package dash
 
-func mmap[T any, M any](slice []T, f func(T) M) []M {
-	ret := make([]M, len(slice), cap(slice))
+// Temporary implementation just for writing tests
+
+func Map(slice []int, f func(int) int) []int {
+	ret := make([]int, len(slice), cap(slice))
 
 	for i, it := range slice {
 		ret[i] = f(it)
@@ -9,8 +11,8 @@ func mmap[T any, M any](slice []T, f func(T) M) []M {
 	return ret
 }
 
-func flatMap[T any, M any](slice []T, f func(T) []M) []M {
-	ret := make([]M, 0)
+func FlatMap(slice []int, f func(int) []int) []int {
+	ret := make([]int, 0)
 	for _, it := range slice {
 		for _, mapped := range f(it) {
 			ret = append(ret, mapped)
@@ -19,8 +21,8 @@ func flatMap[T any, M any](slice []T, f func(T) []M) []M {
 	return ret
 }
 
-func filter[T any](slice []T, f func(T) bool) []T {
-	ret := make([]T, 0)
+func Filter(slice []int, f func(int) bool) []int {
+	ret := make([]int, 0)
 	for _, it := range slice {
 		if f(it) {
 			ret = append(ret, it)
@@ -29,18 +31,18 @@ func filter[T any](slice []T, f func(T) bool) []T {
 	return ret
 }
 
-func reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
+func Reduce(slice []int, f func(int, int) int, acc int) int {
 	for _, it := range slice {
 		acc = f(acc, it)
 	}
 	return acc
 }
 
-func take[T any](slice []T, count int) []T {
+func Take(slice []int, count int) []int {
 	if count > len(slice) {
 		return slice
 	}
-	ret := make([]T, count)
+	ret := make([]int, count)
 	for i := 0; i < count; i++ {
 		ret[i] = slice[i]
 	}
@@ -48,12 +50,12 @@ func take[T any](slice []T, count int) []T {
 	return ret
 }
 
-func drop[T any](slice []T, count int) []T {
+func Drop(slice []int, count int) []int {
 	if count > len(slice) {
-		return []T{}
+		return []int{}
 	}
 
-	ret := make([]T, 0)
+	ret := make([]int, 0)
 	for i := count; i < len(slice); i++ {
 		ret = append(ret, slice[i])
 	}
