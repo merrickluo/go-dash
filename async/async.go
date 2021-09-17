@@ -2,7 +2,6 @@ package async
 
 // mix admix unmix
 // pipeline
-// sliding-buffer
 
 import (
 	"time"
@@ -113,7 +112,7 @@ func SlidingBuffer[T any](ch chan T, n uint) (chan T) {
 		for i := range ch {
 			if len(sb) == full {
 				select {
-				case <-time.After(10*time.Millisecond):
+				case <-time.After(10*time.Millisecond): // best effort
 				case <-sb:
 				}
 			}
@@ -131,7 +130,7 @@ func DroppingBuffer[T any](ch chan T, n uint) (chan T) {
 		for i := range ch {
 			if len(db) != full {
 				select {
-				case <-time.After(10*time.Millisecond):
+				case <-time.After(10*time.Millisecond): // best effort
 				case db <- i:
 				}
 			}
