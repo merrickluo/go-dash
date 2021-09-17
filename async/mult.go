@@ -1,4 +1,6 @@
-package main
+//go:build generic
+
+package async
 
 type mMult[T any] struct {
 	source chan T
