@@ -97,3 +97,31 @@ func TestMapInt(t *testing.T) {
 
 	assert.Equal(t, []int{2, 4, 6}, async.Collect(mappedCh))
 }
+
+func TestFilterInt(t *testing.T) {
+	ch := make(chan int, 10)
+	filtered := async.Filter(ch, func(i int) bool {
+		return i%2 == 0
+	})
+
+	ch <- 1
+	ch <- 2
+	ch <- 3
+	close(ch)
+
+	assert.Equal(t, []int{2}, async.Collect(filtered))
+}
+
+func TestReduceInt(t *testing.T) {
+	ch := make(chan int, 10)
+	reduced := async.Reduce(ch, func(acc int, i int) int {
+		return acc + i
+	}, 0)
+
+	ch <- 1
+	ch <- 2
+	ch <- 3
+	close(ch)
+
+	assert.Equal(t, []int{6}, async.Collect(reduced))
+}
