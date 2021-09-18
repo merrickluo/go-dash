@@ -105,3 +105,18 @@ func TestShuffle(t *testing.T) {
 	assert.ElementsMatch(t, c, a)
 	assert.ElementsMatch(t, d, a)
 }
+
+func TestInclude(t *testing.T) {
+	a := []int{1, 3}
+
+	assert.Equal(t, false, dash.Include(a, 2))
+	assert.Equal(t, true, dash.Include(a, 1))
+}
+
+func TestCycle(t *testing.T) {
+	a := []int{1, 3}
+
+	assert.Equal(t, []int{}, dash.Cycle(a, 0))
+	assert.Equal(t, []int{1, 3}, dash.Cycle(a, 1))
+	assert.Equal(t, []int{1, 3, 1, 3}, dash.Cycle(a, 2))
+}

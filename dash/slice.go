@@ -146,6 +146,15 @@ func Shuffle[T any](slice []T) []T {
 	return result
 }
 
+func Include[T comparable](slice []T, e T) bool {
+	for _, v := range slice {
+		if v == e {
+			return true
+		}
+	}
+	return false
+}
+
 func Cycle[T any](slice []T, n uint) []T {
 	l := uint(len(slice))
 	ll := n * l
