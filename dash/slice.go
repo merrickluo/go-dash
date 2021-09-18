@@ -1,5 +1,10 @@
 package dash
 
+import (
+	"math/rand"
+	"time"
+)
+
 func Map[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), cap(slice))
 
@@ -56,6 +61,119 @@ func Drop[T any](slice []T, count int) []T {
 	ret := make([]T, 0)
 	for i := count; i < len(slice); i++ {
 		ret = append(ret, slice[i])
+	}
+	return ret
+}
+
+func Intersection[T comparable](slices... []T) (result []T) {
+	l := uint(len(slices))
+	m := map[T]uint{}
+	for _, s := range slices {
+		for _, k := range s {
+			v, found := m[k]
+			if !found {
+				m[k] = 1
+			} else {
+				m[k] = v + 1
+			}
+		}
+	}
+	for k, v := range m {
+		if v == l {
+			result = append(result, k)
+		}
+	}
+	return
+}
+
+func Uniq[T comparable](slice []T) (result []T) {
+	m := map[T]bool{}
+	for _, v := range slice {
+		if _, found := m[v]; found {
+			continue
+		} else {
+			result = append(result, v)
+			m[v] = true
+		}
+	}
+	return
+}
+
+func Every[T any](slice []T, pred func(T) bool) bool {
+	for _, v := range slice {
+		if !pred(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func Some[T any](slice []T, pred func(T) bool) bool {
+	for _, v := range slice {
+		if pred(v) {
+			return true
+		}
+	}
+	return false
+}
+
+func None[T any](slice []T, pred func(T) bool) bool {
+	return !Some(slice, pred)
+}
+
+func GroupBy[T any, D comparable](slice []T, f func(T) D) map[D][]T {
+	m := map[D][]T{}
+	for _, v := range slice {
+		d := f(v)
+		if _, found := m[d]; found {
+			m[d] = append(m[d], v)
+		} else {
+			m[d] = []T{v}
+		}
+	}
+	return m
+}
+
+func Shuffle[T any](slice []T) []T {
+	l := len(slice)
+	result := make([]T, l)
+
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	perm := r.Perm(l)
+	for i, j := range perm {
+		result[i] = slice[j]
+	}
+	return result
+}
+
+func Include[T comparable](slice []T, e T) bool {
+	for _, v := range slice {
+		if v == e {
+			return true
+		}
+	}
+	return false
+}
+
+func Cycle[T any](slice []T, n uint) []T {
+	l := uint(len(slice))
+	ll := n * l
+
+	ret := make([]T, ll)
+	var i uint = 0
+	var j uint = 0
+	for {
+		if i == ll {
+			break
+		}
+
+		ret[i] = slice[j]
+		i++
+		j++
+
+		if j == l {
+			j = 0
+		}
 	}
 	return ret
 }
