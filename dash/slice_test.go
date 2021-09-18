@@ -83,3 +83,13 @@ func TestEverySomeNone(t *testing.T) {
 	assert.Equal(t, false, dash.None(b, odd))
 	assert.Equal(t, true, dash.None(c, odd))
 }
+
+func TestGroupBy(t *testing.T) {
+	a := []int{1, 3, 3, 2}
+	result := map[bool][]int{
+		true:  []int{1, 3, 3},
+		false: []int{2},
+	}
+
+	assert.Equal(t, result, dash.GroupBy(a, odd))
+}

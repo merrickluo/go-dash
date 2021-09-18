@@ -115,3 +115,16 @@ func Some[T any](slice []T, pred func(T) bool) bool {
 func None[T any](slice []T, pred func(T) bool) bool {
 	return !Some(slice, pred)
 }
+
+func GroupBy[T any, D comparable](slice []T, f func(T) D) map[D][]T {
+	m := map[D][]T{}
+	for _, v := range slice {
+		d := f(v)
+		if _, found := m[d]; found {
+			m[d] = append(m[d], v)
+		} else {
+			m[d] = []T{v}
+		}
+	}
+	return m
+}
