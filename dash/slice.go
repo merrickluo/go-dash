@@ -93,3 +93,25 @@ func Uniq[T comparable](slice []T) (result []T) {
 	}
 	return
 }
+
+func Every[T any](slice []T, pred func(T) bool) bool {
+	for _, v := range slice {
+		if !pred(v) {
+			return false
+		}
+	}
+	return true
+}
+
+func Some[T any](slice []T, pred func(T) bool) bool {
+	for _, v := range slice {
+		if pred(v) {
+			return true
+		}
+	}
+	return false
+}
+
+func None[T any](slice []T, pred func(T) bool) bool {
+	return !Some(slice, pred)
+}

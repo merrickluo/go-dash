@@ -61,3 +61,25 @@ func TestUniq(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, dash.Uniq(a))
 	assert.Equal(t, []int{1, 3, 2}, dash.Uniq(b))
 }
+
+func odd(i int) bool {
+	return i%2 == 1
+}
+
+func TestEverySomeNone(t *testing.T) {
+	a := []int{1, 3, 5}
+	b := []int{1, 3, 3, 2}
+	c := []int{4, 6, 2}
+
+	assert.Equal(t, true, dash.Every(a, odd))
+	assert.Equal(t, false, dash.Every(b, odd))
+	assert.Equal(t, false, dash.Every(c, odd))
+
+	assert.Equal(t, true, dash.Some(a, odd))
+	assert.Equal(t, true, dash.Some(b, odd))
+	assert.Equal(t, false, dash.Some(c, odd))
+
+	assert.Equal(t, false, dash.None(a, odd))
+	assert.Equal(t, false, dash.None(b, odd))
+	assert.Equal(t, true, dash.None(c, odd))
+}
