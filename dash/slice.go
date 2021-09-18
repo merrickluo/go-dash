@@ -145,3 +145,26 @@ func Shuffle[T any](slice []T) []T {
 	}
 	return result
 }
+
+func Cycle[T any](slice []T, n uint) []T {
+	l := uint(len(slice))
+	ll := n * l
+
+	ret := make([]T, ll)
+	var i uint = 0
+	var j uint = 0
+	for {
+		if i == ll {
+			break
+		}
+
+		ret[i] = slice[j]
+		i++
+		j++
+
+		if j == l {
+			j = 0
+		}
+	}
+	return ret
+}
