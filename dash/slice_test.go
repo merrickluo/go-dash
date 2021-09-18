@@ -93,3 +93,15 @@ func TestGroupBy(t *testing.T) {
 
 	assert.Equal(t, result, dash.GroupBy(a, odd))
 }
+
+func TestShuffle(t *testing.T) {
+	a := []int{1, 3, 3, 2, 5}
+
+	b := dash.Shuffle(a)
+	c := dash.Shuffle(a)
+	d := dash.Shuffle(c)
+
+	assert.ElementsMatch(t, b, a)
+	assert.ElementsMatch(t, c, a)
+	assert.ElementsMatch(t, d, a)
+}

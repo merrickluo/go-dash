@@ -1,5 +1,10 @@
 package dash
 
+import (
+	"math/rand"
+	"time"
+)
+
 func Map[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), cap(slice))
 
@@ -127,4 +132,16 @@ func GroupBy[T any, D comparable](slice []T, f func(T) D) map[D][]T {
 		}
 	}
 	return m
+}
+
+func Shuffle[T any](slice []T) []T {
+	l := len(slice)
+	result := make([]T, l)
+
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	perm := r.Perm(l)
+	for i, j := range perm {
+		result[i] = slice[j]
+	}
+	return result
 }
