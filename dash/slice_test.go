@@ -53,3 +53,11 @@ func TestIntersection(t *testing.T) {
 	assert.ElementsMatch(t, []int{2, 3}, dash.Intersection(a, c))
 	assert.Equal(t, []int{3}, dash.Intersection(a, b, c))
 }
+
+func TestUniq(t *testing.T) {
+	a := []int{1, 1, 2, 3}
+	b := []int{1, 3, 3, 2}
+
+	assert.Equal(t, []int{1, 2, 3}, dash.Uniq(a))
+	assert.Equal(t, []int{1, 3, 2}, dash.Uniq(b))
+}

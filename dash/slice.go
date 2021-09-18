@@ -80,3 +80,16 @@ func Intersection[T comparable](slices... []T) (result []T) {
 	}
 	return
 }
+
+func Uniq[T comparable](slice []T) (result []T) {
+	m := map[T]bool{}
+	for _, v := range slice {
+		if _, found := m[v]; found {
+			continue
+		} else {
+			result = append(result, v)
+			m[v] = true
+		}
+	}
+	return
+}
