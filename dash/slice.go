@@ -61,9 +61,6 @@ func Drop[T any](slice []T, count int) []T {
 }
 
 func Intersection[T comparable](slices... []T) (result []T) {
-	if len(slices) == 0 {
-		return
-	}
 	l := uint(len(slices))
 	m := map[T]uint{}
 	for _, s := range slices {
