@@ -42,3 +42,14 @@ func TestTakeInt(t *testing.T) {
 func TestDropInt(t *testing.T) {
 	assert.Equal(t, []int{3}, dash.Drop([]int{1, 2, 3}, 2))
 }
+
+func TestIntersection(t *testing.T) {
+	a := []int{1, 2, 3}
+	b := []int{1, 3}
+	c := []int{2, 3}
+
+	assert.ElementsMatch(t, []int{1, 2, 3}, dash.Intersection(a))
+	assert.ElementsMatch(t, []int{1, 3}, dash.Intersection(a, b))
+	assert.ElementsMatch(t, []int{2, 3}, dash.Intersection(a, c))
+	assert.Equal(t, []int{3}, dash.Intersection(a, b, c))
+}
