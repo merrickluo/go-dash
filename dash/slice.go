@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// Map returns a new slice with type M by applying function f
+// to every value in slice.
 func Map[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), cap(slice))
 
@@ -14,6 +16,8 @@ func Map[T any, M any](slice []T, f func(T) M) []M {
 	return ret
 }
 
+// FlatMap returns a new slice with type M by applying function f
+// to every value in slice, and flattern to single-dimension slice.
 func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 	ret := make([]M, 0)
 	for _, it := range slice {
@@ -24,48 +28,59 @@ func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 	return ret
 }
 
-func Filter[T any](slice []T, f func(T) bool) []T {
+// Filter returns a new slice containing all values of slice
+// that the function when function pred returns true.
+func Filter[T any](slice []T, pred func(T) bool) []T {
 	ret := make([]T, 0)
 	for _, it := range slice {
-		if f(it) {
+		if pred(it) {
 			ret = append(ret, it)
 		}
 	}
 	return ret
 }
 
-func Reduce[T any, A any](slice []T, f func(A, T) A, acc A) A {
+// Reduce combines all values of slice into a single value by applying
+// function f with the accumulator value and every value in slice.
+// First iteration of accumulator value is init, the subsequent
+// accumulator value is the return value of previous call to f.
+func Reduce[T any, A any](slice []T, f func(A, T) A, init A) A {
+	acc := init
 	for _, it := range slice {
 		acc = f(acc, it)
 	}
 	return acc
 }
 
-func Take[T any](slice []T, count int) []T {
-	if count > len(slice) {
+// Take returns a new slice containing the first n values of slice.
+func Take[T any](slice []T, n int) []T {
+	if n > len(slice) {
 		return slice
 	}
-	ret := make([]T, count)
-	for i := 0; i < count; i++ {
+	ret := make([]T, n)
+	for i := 0; i < n; i++ {
 		ret[i] = slice[i]
 	}
 
 	return ret
 }
 
-func Drop[T any](slice []T, count int) []T {
-	if count > len(slice) {
+// Drop returns a new slice containing the remaining values of slice
+// except the first n values.
+func Drop[T any](slice []T, n int) []T {
+	if n > len(slice) {
 		return []T{}
 	}
 
 	ret := make([]T, 0)
-	for i := count; i < len(slice); i++ {
+	for i := n; i < len(slice); i++ {
 		ret = append(ret, slice[i])
 	}
 	return ret
 }
 
-func Intersection[T comparable](slices... []T) (result []T) {
+// Intersection returns a single slice containing uniq values among slices.
+func Intersection[T comparable](slices ...[]T) (result []T) {
 	l := uint(len(slices))
 	m := map[T]uint{}
 	for _, s := range slices {
@@ -86,6 +101,7 @@ func Intersection[T comparable](slices... []T) (result []T) {
 	return
 }
 
+// Uniq returns a new slice containing all uniq values in slice.
 func Uniq[T comparable](slice []T) (result []T) {
 	m := map[T]bool{}
 	for _, v := range slice {
@@ -99,6 +115,8 @@ func Uniq[T comparable](slice []T) (result []T) {
 	return
 }
 
+// Every returns true if pred never returns false,
+// returns false otherwise.
 func Every[T any](slice []T, pred func(T) bool) bool {
 	for _, v := range slice {
 		if !pred(v) {
@@ -108,6 +126,8 @@ func Every[T any](slice []T, pred func(T) bool) bool {
 	return true
 }
 
+// Some returns false if pred never returns true,
+// returns true otherwise.
 func Some[T any](slice []T, pred func(T) bool) bool {
 	for _, v := range slice {
 		if pred(v) {
@@ -117,10 +137,15 @@ func Some[T any](slice []T, pred func(T) bool) bool {
 	return false
 }
 
+// None returns true if pred never returns true,
+// returns false otherwise.
 func None[T any](slice []T, pred func(T) bool) bool {
 	return !Some(slice, pred)
 }
 
+// GroupBy returns a map.
+// The keys are the return values of applying f with the values of slice.
+// The values are values of slice which evaluates to it's key.
 func GroupBy[T any, D comparable](slice []T, f func(T) D) map[D][]T {
 	m := map[D][]T{}
 	for _, v := range slice {
@@ -134,6 +159,8 @@ func GroupBy[T any, D comparable](slice []T, f func(T) D) map[D][]T {
 	return m
 }
 
+// Shuffle returns a new slice which containing all the values
+// of slice, but in a random order.
 func Shuffle[T any](slice []T) []T {
 	l := len(slice)
 	result := make([]T, l)
@@ -146,6 +173,7 @@ func Shuffle[T any](slice []T) []T {
 	return result
 }
 
+// Include returns true if value e is in slice.
 func Include[T comparable](slice []T, e T) bool {
 	for _, v := range slice {
 		if v == e {
@@ -155,6 +183,7 @@ func Include[T comparable](slice []T, e T) bool {
 	return false
 }
 
+// Cycle returns a new slice by repeating slice n times.
 func Cycle[T any](slice []T, n uint) []T {
 	l := uint(len(slice))
 	ll := n * l
