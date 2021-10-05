@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-// Map returns a new slice with type M by applying function f
-// to every value in slice.
+// Map returns a new slice containing values produced
+// by applying function f to every value in slice.
 func Map[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), cap(slice))
 
@@ -16,8 +16,9 @@ func Map[T any, M any](slice []T, f func(T) M) []M {
 	return ret
 }
 
-// FlatMap returns a new slice with type M by applying function f
-// to every value in slice, and flattern to single-dimension slice.
+// FlatMap returns a new slice containing values produced
+// by applying function f to every value in slice,
+// and flattern to a one-dimensional slice.
 func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 	ret := make([]M, 0)
 	for _, it := range slice {
@@ -43,7 +44,7 @@ func Filter[T any](slice []T, pred func(T) bool) []T {
 // Reduce combines all values of slice into a single value by applying
 // function f with the accumulator value and every value in slice.
 // First iteration of accumulator value is init, the subsequent
-// accumulator value is the return value of previous call to f.
+// accumulator value is the return value of f.
 func Reduce[T any, A any](slice []T, f func(A, T) A, init A) A {
 	acc := init
 	for _, it := range slice {

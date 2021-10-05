@@ -1,7 +1,5 @@
+// Package async provides functional utilities for channels.
 package async
-
-// mix admix unmix
-// pipeline
 
 import (
 	"sync"
@@ -10,6 +8,8 @@ import (
 	"github.com/merrickluo/go-dash/dash"
 )
 
+// Map returns a new channel containing values produced by
+// applying function f to every value from source channel ch.
 func Map[T any, M any](ch <-chan T, f func(T) M) <-chan M {
 	ret := make(chan M)
 
@@ -23,6 +23,8 @@ func Map[T any, M any](ch <-chan T, f func(T) M) <-chan M {
 	return ret
 }
 
+// Filter returns a new channel containing values which
+// pred(value) returns true.
 func Filter[T any](ch <-chan T, pred func(T) bool) <-chan T {
 	ret := make(chan T)
 
@@ -38,6 +40,11 @@ func Filter[T any](ch <-chan T, pred func(T) bool) <-chan T {
 	return ret
 }
 
+// Reduce returns a channel containing a single value,
+// accumulated by applying function f to
+// the accumulator value and values from ch.
+// The first accumulator value is init, the subsequent
+// accumulator value is the return value of f.
 func Reduce[T any, M any](ch <-chan T, f func(M, T) M, init M) <-chan M {
 	ret := make(chan M)
 
@@ -53,12 +60,13 @@ func Reduce[T any, M any](ch <-chan T, f func(M, T) M, init M) <-chan M {
 	return ret
 }
 
-func Take[T any](ch <-chan T, count int) <-chan T {
+// Take returns a new channel containing the first n values of ch.
+func Take[T any](ch <-chan T, n int) <-chan T {
 	ret := make(chan T)
 
 	go func() {
 		defer close(ret)
-		for i := 0; i < count; i++ {
+		for i := 0; i < n; i++ {
 			ret <- <-ch
 		}
 	}()
@@ -66,12 +74,14 @@ func Take[T any](ch <-chan T, count int) <-chan T {
 	return ret
 }
 
-func Drop[T any](ch <-chan T, count int) <-chan T {
+// Drop returns a new channel containing
+// all the values from ch, except the first n.
+func Drop[T any](ch <-chan T, n int) <-chan T {
 	ret := make(chan T)
 
 	go func() {
 		defer close(ret)
-		for i := 0; i < count; i++ {
+		for i := 0; i < n; i++ {
 			<-ch
 		}
 
@@ -83,6 +93,7 @@ func Drop[T any](ch <-chan T, count int) <-chan T {
 	return ret
 }
 
+// Merge returns a new channel containing all values from chs.
 func Merge[T any](chs ...chan T) chan T {
 	ret := make(chan T)
 	wg := sync.WaitGroup{}
@@ -103,6 +114,9 @@ func Merge[T any](chs ...chan T) chan T {
 	return ret
 }
 
+// Split returns two channel.
+// The first channel containing values that pred(value) == true.
+// The second channel containing values that pred(value) == false.
 func Split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
 	c1 := make(chan T, 8)
 	c2 := make(chan T, 8)
@@ -122,6 +136,8 @@ func Split[T any](ch <-chan T, pred func(T) bool) (chan T, chan T) {
 	return c1, c2
 }
 
+// Collect returns a slice containing all the values from channel ch.
+// ch must be closed.
 func Collect[T any](ch <-chan T) []T {
 	ret := make([]T, 0)
 	for it := range ch {
@@ -130,12 +146,16 @@ func Collect[T any](ch <-chan T) []T {
 	return ret
 }
 
+// Into puts all values from channel ch into slice.
+// ch must be closed.
 func Into[T any](ch chan T, slice *[]T) {
 	for it := range ch {
 		*slice = append(*slice, it)
 	}
 }
 
+// SlidingBuffer returns a new channel with size n.
+// When full, the oldest value will be dropped.
 func SlidingBuffer[T any](ch chan T, n uint) chan T {
 	sb := make(chan T, n)
 	full := int(n)
@@ -154,6 +174,8 @@ func SlidingBuffer[T any](ch chan T, n uint) chan T {
 	return sb
 }
 
+// DroppingBuffer returns a new channel with size n.
+// When full, new values are ignored.
 func DroppingBuffer[T any](ch chan T, n uint) chan T {
 	db := make(chan T, n)
 	full := int(n)
@@ -171,6 +193,9 @@ func DroppingBuffer[T any](ch chan T, n uint) chan T {
 	return db
 }
 
+// Zip returns a new channel containing values that
+// combines each value from ch1 and ch2 as Pair.
+// Values in the result channel equals the channel has least values.
 func Zip[T any, M any](ch1 chan T, ch2 chan M) chan dash.Pair[T, M] {
 	ret := make(chan dash.Pair[T, M])
 
