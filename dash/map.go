@@ -24,19 +24,17 @@ func Values[K comparable, V any](m map[K]V) []V {
 
 // MergeWith returns a new map contains all keys in maps
 // and values by applying function f to all values with the same key
-func MergeWith[K comparable, V any, NV any](f func(...V) NV, maps ...map[K]V) map[K]NV {
-	keys := Uniq(FlatMap(maps, Keys[K, V]))
-	ret := make(map[K]NV, len(keys))
+func MergeWith[K comparable, V any](f func(v1 V, v2 V) V, maps ...map[K]V) map[K]V {
+	ret := make(map[K]V)
 
-	for _, k := range keys {
-		vs := make([]V, 0, len(keys))
-		for _, m := range maps {
-			if v, found := m[k]; found {
-				vs = append(vs, v)
+	for _, m := range maps {
+		for k, v := range m {
+			if rv, found := ret[k]; found {
+				ret[k] = f(rv, v)
+			} else {
+				ret[k] = v
 			}
 		}
-
-		ret[k] = f(vs...)
 	}
 
 	return ret

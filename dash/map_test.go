@@ -22,12 +22,8 @@ func TestMergeWithPlus(t *testing.T) {
 	m2 := map[string]int{"a": 10, "b": 20}
 	m3 := map[string]int{"c": 3, "a": 100}
 
-	merged := dash.MergeWith(func(ns ...int) int {
-		r := 0
-		for _, n := range ns {
-			r += n
-		}
-		return r
+	merged := dash.MergeWith(func(n1 int, n2 int) int {
+		return n1 + n2
 	}, m1, m2, m3)
 	assert.Equal(t, map[string]int{"a": 111, "b": 22, "c": 3}, merged)
 }
