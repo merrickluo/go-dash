@@ -140,3 +140,10 @@ func TestParallelMapN(t *testing.T) {
 func TestReverse(t *testing.T) {
 	assert.Equal(t, []int{1, 2, 3}, dash.Reverse([]int{3, 2, 1}))
 }
+
+func TestPartition(t *testing.T) {
+	a := []int{1, 2, 3, 4}
+	assert.Equal(t, [][]int{{1, 2}, {3, 4}}, dash.Partition(a, 2))
+	assert.Equal(t, [][]int{{1, 2, 3}}, dash.Partition(a, 3))
+	assert.Equal(t, [][]int{{1}, {2}, {3}, {4}}, dash.Partition(a, 1))
+}
