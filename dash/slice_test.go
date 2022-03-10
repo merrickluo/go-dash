@@ -146,4 +146,13 @@ func TestPartition(t *testing.T) {
 	assert.Equal(t, [][]int{{1, 2}, {3, 4}}, dash.Partition(a, 2))
 	assert.Equal(t, [][]int{{1, 2, 3}}, dash.Partition(a, 3))
 	assert.Equal(t, [][]int{{1}, {2}, {3}, {4}}, dash.Partition(a, 1))
+	assert.Equal(t, [][]int{}, dash.Partition(a, 5))
+}
+
+func TestPartitionStep(t *testing.T) {
+	a := []int{1, 2, 3, 4}
+	assert.Equal(t, [][]int{{1, 2}, {2, 3}, {3, 4}}, dash.PartitionStep(a, 2, 1))
+	assert.Equal(t, [][]int{{1, 2, 3}, {2, 3, 4}}, dash.PartitionStep(a, 3, 1))
+	assert.Equal(t, [][]int{{1, 2, 3}}, dash.PartitionStep(a, 3, 2))
+	assert.Equal(t, [][]int{}, dash.PartitionStep(a, 5, 2))
 }

@@ -3,6 +3,7 @@ package dash
 import (
 	"math/rand"
 	"time"
+	"fmt"
 )
 
 // Map returns a new slice containing values produced
@@ -284,6 +285,19 @@ func Partition[T any](slice []T, n int) [][]T {
 	for i := 0; i < u; i++ {
 		ret[i] = make([]T, n)
 		copy(ret[i], slice[i*n:i*n+n])
+	}
+	return ret
+}
+
+// Partition turn a slice into n-sized(n>0) slices
+// each start with offset s, right to previous start location
+// the last partition is dropped when size<n
+func PartitionStep[T any](slice []T, n int, s int) [][]T {
+	ret := [][]T{}
+	for o := 0; o+n <= len(slice); o+=s {
+		a := make([]T, n)
+		copy(a, slice[o:o+n])
+		ret=append(ret, a)
 	}
 	return ret
 }
