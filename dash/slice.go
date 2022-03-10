@@ -263,3 +263,17 @@ func Cycle[T any](slice []T, n uint) []T {
 	}
 	return ret
 }
+
+
+// Reverse return a new slice in reversed order.
+func Reverse[T any](slice []T) []T {
+	size := len(slice)
+	ret := make([]T, size)
+
+	for i, it := range slice {
+		ret[size-i-1] = it
+	}
+
+	return ret
+}
+

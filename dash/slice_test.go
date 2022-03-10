@@ -136,3 +136,7 @@ func TestParallelMapN(t *testing.T) {
 		return i + 1
 	}, 2))
 }
+
+func TestReverse(t *testing.T) {
+	assert.Equal(t, []int{1, 2, 3}, dash.Reverse([]int{3, 2, 1}))
+}
