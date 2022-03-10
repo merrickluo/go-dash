@@ -120,3 +120,19 @@ func TestCycle(t *testing.T) {
 	assert.Equal(t, []int{1, 3}, dash.Cycle(a, 1))
 	assert.Equal(t, []int{1, 3, 1, 3}, dash.Cycle(a, 2))
 }
+
+func TestParallelMap(t *testing.T) {
+	a := []int{1, 2, 3}
+
+	assert.Equal(t, []int{2, 3, 4}, dash.ParallelMap(a, func(i int) int {
+		return i + 1
+	}))
+}
+
+func TestParallelMapN(t *testing.T) {
+	a := []int{1, 2, 3}
+
+	assert.Equal(t, []int{2, 3, 4}, dash.ParallelMapN(a, func(i int) int {
+		return i + 1
+	}, 2))
+}

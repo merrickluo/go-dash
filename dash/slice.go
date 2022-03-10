@@ -29,6 +29,62 @@ func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 	return ret
 }
 
+// ParallelMap works just like Map including the result order,
+// but f is applied in parallel with goroutine.
+// This version creates len(slice) of goroutines,
+// use ParallelMapN if the amount of goroutines created
+// at the same time needs to be limited.
+func ParallelMap[T any, M any](slice []T, f func(T) M) []M {
+	ret := make([]M, len(slice), len(slice))
+
+	ch := make(chan Pair[int, M])
+	defer close(ch)
+
+	for i, it := range slice {
+		go func(i int, it T) {
+			ch <- NewPair(i, f(it))
+		}(i, it)
+	}
+
+	c := 0
+	for c < len(slice) {
+		p := <-ch
+		ret[p.First] = p.Second
+		c += 1
+	}
+
+	return ret
+}
+
+// ParallelMapN is a version of ParallelMap,
+// but has a limit of goroutine created at the same time.
+func ParallelMapN[T any, M any](slice []T, f func(T) M, limit int) []M {
+	ret := make([]M, len(slice), len(slice))
+
+	ch := make(chan Pair[int, M], limit)
+	defer close(ch)
+
+	sem := make(chan struct{}, limit)
+	defer close(sem)
+
+	for i, it := range slice {
+		sem <- struct{}{}
+		go func(i int, it T) {
+			ch <- NewPair(i, f(it))
+			<-sem
+		}(i, it)
+	}
+
+	c := 0
+	for c < len(slice) {
+		p := <-ch
+		ret[p.First] = p.Second
+		c += 1
+	}
+
+	return ret
+}
+
 // Filter returns a new slice containing all values of slice
 // that the function when function pred returns true.
 func Filter[T any](slice []T, pred func(T) bool) []T {
