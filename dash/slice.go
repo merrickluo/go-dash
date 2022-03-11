@@ -264,7 +264,6 @@ func Cycle[T any](slice []T, n uint) []T {
 	return ret
 }
 
-
 // Reverse return a new slice in reversed order.
 func Reverse[T any](slice []T) []T {
 	size := len(slice)
@@ -277,3 +276,30 @@ func Reverse[T any](slice []T) []T {
 	return ret
 }
 
+// Partition turn a slice into n-sized(n>0) slices
+// the last k elements are dropped if k<n
+func Partition[T any](slice []T, n int) [][]T {
+	u := len(slice) / n
+	ret := make([][]T, u)
+	for i := 0; i < u; i++ {
+		ret[i] = make([]T, n)
+		copy(ret[i], slice[i*n:i*n+n])
+	}
+	return ret
+}
+
+// Partition turn a slice into n-sized(n>0) slices
+// each start with offset s(s>0), right to previous start location
+// the last partition is dropped when size<n
+func PartitionStep[T any](slice []T, n uint, s uint) [][]T {
+	ret := [][]T{}
+	if s == 0 || n == 0 {
+		return ret
+	}
+	for o := uint(0); int(o+n) <= len(slice); o+=s {
+		a := make([]T, n)
+		copy(a, slice[o:o+n])
+		ret=append(ret, a)
+	}
+	return ret
+}
