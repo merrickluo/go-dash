@@ -2,6 +2,7 @@ package dash
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -36,23 +37,17 @@ func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 // at the same time needs to be limited.
 func ParallelMap[T any, M any](slice []T, f func(T) M) []M {
 	ret := make([]M, len(slice), len(slice))
-
-	ch := make(chan Pair[int, M])
-	defer close(ch)
+	wg := sync.WaitGroup{}
 
 	for i, it := range slice {
+		wg.Add(1)
 		go func(i int, it T) {
-			ch <- NewPair(i, f(it))
+			ret[i] = f(it)
+			wg.Done()
 		}(i, it)
 	}
 
-	c := 0
-	for c < len(slice) {
-		p := <-ch
-		ret[p.First] = p.Second
-		c += 1
-	}
-
+	wg.Wait()
 	return ret
 }
 
@@ -61,25 +56,19 @@ func ParallelMap[T any, M any](slice []T, f func(T) M) []M {
 func ParallelMapN[T any, M any](slice []T, f func(T) M, limit int) []M {
 	ret := make([]M, len(slice), len(slice))
 
-	ch := make(chan Pair[int, M], limit)
-	defer close(ch)
-
 	sem := make(chan struct{}, limit)
 	defer close(sem)
 
 	for i, it := range slice {
 		sem <- struct{}{}
 		go func(i int, it T) {
-			ch <- NewPair(i, f(it))
+			ret[i] = f(it)
 			<-sem
 		}(i, it)
 	}
 
-	c := 0
-	for c < len(slice) {
-		p := <-ch
-		ret[p.First] = p.Second
-		c += 1
+	for i := 0; i < limit; i++ {
+		sem <-struct{}{}
 	}
 
 	return ret
