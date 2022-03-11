@@ -292,3 +292,13 @@ func PartitionStep[T any](slice []T, n uint, s uint) [][]T {
 	}
 	return ret
 }
+
+// Rotate returns a new slice by rotating self
+// so that the element at n is the first element of the new slice.
+func Rotate[T any](slice []T, n uint) []T {
+	ret := make([]T, len(slice), cap(slice))
+
+	copy(ret, slice[n:])
+	copy(ret[len(slice) - int(n):], slice[:n])
+	return ret
+}

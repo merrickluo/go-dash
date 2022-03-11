@@ -172,3 +172,9 @@ func TestPartitionStepMisuse(t *testing.T) {
 	assert.Equal(t, [][]int{}, dash.PartitionStep(a, 3, 0))
 	assert.Equal(t, [][]int{}, dash.PartitionStep(a, 0, 1))
 }
+
+func TestRotate(t *testing.T) {
+	a := []int{1, 2, 3, 4}
+	assert.Equal(t, []int{2, 3, 4, 1}, dash.Rotate(a, 1))
+	assert.Equal(t, []int{3, 4, 1, 2}, dash.Rotate(a, 2))
+}
