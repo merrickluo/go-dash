@@ -22,11 +22,22 @@ func Values[K comparable, V any](m map[K]V) []V {
 	return ret
 }
 
+// Merge maps into one map, uses the value in the latter map.
+func Merge[K comparable, V any](maps ...map[K]V) map[K]V {
+	ret := make(map[K]V)
+	for _, m := range maps {
+		for k, v := range m {
+			ret[k] = v
+		}
+	}
+
+	return ret
+}
+
 // MergeWith returns a new map contains all keys in maps
 // and values by applying function f to all values with the same key
 func MergeWith[K comparable, V any](f func(v1 V, v2 V) V, maps ...map[K]V) map[K]V {
 	ret := make(map[K]V)
-
 	for _, m := range maps {
 		for k, v := range m {
 			if rv, found := ret[k]; found {

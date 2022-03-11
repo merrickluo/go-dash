@@ -17,6 +17,15 @@ func TestMapValues(t *testing.T) {
 	assert.ElementsMatch(t, []int{1, 2}, dash.Values(m))
 }
 
+func TestMerge(t *testing.T) {
+	m1 := map[string]int{"a": 1, "b": 2}
+	m2 := map[string]int{"a": 10, "b": 20}
+	m3 := map[string]int{"c": 3, "a": 100}
+
+	merged := dash.Merge(m1, m2, m3)
+	assert.Equal(t, map[string]int{"a": 100, "b": 20, "c": 3}, merged)
+}
+
 func TestMergeWithPlus(t *testing.T) {
 	m1 := map[string]int{"a": 1, "b": 2}
 	m2 := map[string]int{"a": 10, "b": 20}
