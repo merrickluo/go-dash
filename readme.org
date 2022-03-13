@@ -1,0 +1,18 @@
+* go-dash
+Go-dash provides functional programming utilities inspired by clojure [[https://clojuredocs.org/clojure.core][core]] and [[https://clojuredocs.org/clojure.core.async][core.async]] to golang, thanks to generic introduced in [[https://tip.golang.org/doc/go1.18][go 1.18]].
+
+** Development
+Before go 1.18 release, to [[https://github.com/golang/tools/blob/master/gopls/doc/advanced.md#working-with-generic-code][Working with generic code]].
+
+#+begin_src bash
+go get -v golang.org/dl/gotip
+gotip download
+gotip get golang.org/x/tools/gopls@master golang.org/x/tools@master
+#+end_src
+
+Then run test:
+
+#+begin_src bash
+# count=1 disables test cache
+gotip test -v -count=1 ./...
+#+end_src
