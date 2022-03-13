@@ -2,6 +2,7 @@ package dash
 
 import (
 	"math/rand"
+	"sync"
 	"time"
 )
 
@@ -26,6 +27,50 @@ func FlatMap[T any, M any](slice []T, f func(T) []M) []M {
 			ret = append(ret, mapped)
 		}
 	}
+	return ret
+}
+
+// ParallelMap works just like Map including the result order,
+// but f is applied in parallel with goroutine.
+// This version creates len(slice) of goroutines,
+// use ParallelMapN if the amount of goroutines created
+// at the same time needs to be limited.
+func ParallelMap[T any, M any](slice []T, f func(T) M) []M {
+	ret := make([]M, len(slice), len(slice))
+	wg := sync.WaitGroup{}
+
+	for i, it := range slice {
+		wg.Add(1)
+		go func(i int, it T) {
+			ret[i] = f(it)
+			wg.Done()
+		}(i, it)
+	}
+
+	wg.Wait()
+	return ret
+}
+
+// ParallelMapN is a version of ParallelMap,
+// but has a limit of goroutine created at the same time.
+func ParallelMapN[T any, M any](slice []T, f func(T) M, limit int) []M {
+	ret := make([]M, len(slice), len(slice))
+
+	sem := make(chan struct{}, limit)
+	defer close(sem)
+
+	for i, it := range slice {
+		sem <- struct{}{}
+		go func(i int, it T) {
+			ret[i] = f(it)
+			<-sem
+		}(i, it)
+	}
+
+	for i := 0; i < limit; i++ {
+		sem <-struct{}{}
+	}
+
 	return ret
 }
 
@@ -205,5 +250,55 @@ func Cycle[T any](slice []T, n uint) []T {
 			j = 0
 		}
 	}
+	return ret
+}
+
+// Reverse return a new slice in reversed order.
+func Reverse[T any](slice []T) []T {
+	size := len(slice)
+	ret := make([]T, size)
+
+	for i, it := range slice {
+		ret[size-i-1] = it
+	}
+
+	return ret
+}
+
+// Partition turn a slice into n-sized(n>0) slices
+// the last k elements are dropped if k<n
+func Partition[T any](slice []T, n int) [][]T {
+	u := len(slice) / n
+	ret := make([][]T, u)
+	for i := 0; i < u; i++ {
+		ret[i] = make([]T, n)
+		copy(ret[i], slice[i*n:i*n+n])
+	}
+	return ret
+}
+
+// Partition turn a slice into n-sized(n>0) slices
+// each start with offset s(s>0), right to previous start location
+// the last partition is dropped when size<n
+func PartitionStep[T any](slice []T, n uint, s uint) [][]T {
+	ret := [][]T{}
+	if s == 0 || n == 0 {
+		return ret
+	}
+	for o := uint(0); int(o+n) <= len(slice); o+=s {
+		a := make([]T, n)
+		copy(a, slice[o:o+n])
+		ret=append(ret, a)
+	}
+	return ret
+}
+
+// Rotate returns a new slice by rotating self
+// so that the element at n is the first element of the new slice.
+func Rotate[T any](slice []T, n uint) []T {
+	ret := make([]T, len(slice), cap(slice))
+
+	copy(ret, slice[n:])
+	copy(ret[len(slice) - int(n):], slice[:n])
 	return ret
 }
